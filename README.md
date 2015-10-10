@@ -1,1 +1,1 @@
-# super-simple-stock
+# super-simple-stocks
