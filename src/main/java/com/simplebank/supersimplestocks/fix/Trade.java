@@ -3,8 +3,8 @@ package com.simplebank.supersimplestocks.fix;
 import java.util.Date;
 
 /**
- * Super simple fix-based trade (no FIX library used for simplicity and to keep the project
- * lightweight)
+ * Super simple fix-based trade (no FIX library used for simplicity and to keep
+ * the project lightweight)
  * 
  * Trade is immutable
  * 
@@ -13,44 +13,50 @@ import java.util.Date;
  */
 public class Trade {
 
-  private final int qty;
-  private final Side side;
-  private final double price;
-  private final String ticker;
+	private final int tradeId;
+	private final Side side;
+	private final int qty;
+	private final String ticker;
+	private final double price;
 
-  public Trade(Side side, String ticker, int qty, double price) {
-    this.side = side;
-    this.ticker = ticker;
-    this.qty = qty;
-    this.price = price;
-    this.tradeDate = new Date();
-  }
+	public Trade(int tradeId, Side side, String ticker, int qty, double price) {
+		this.tradeId = tradeId;
+		this.side = side;
+		this.ticker = ticker;
+		this.qty = qty;
+		this.price = price;
+		this.tradeDate = new Date();
+	}
 
-  private final Date tradeDate;
+	private final Date tradeDate;
 
-  public Date getTradeDate() {
-    return tradeDate;
-  }
+	public Date getTradeDate() {
+		return tradeDate;
+	}
 
-  public int getQty() {
-    return qty;
-  }
+	public int getQty() {
+		return qty;
+	}
 
-  public Side getSide() {
-    return side;
-  }
+	public Side getSide() {
+		return side;
+	}
 
-  public double getPrice() {
-    return price;
-  }
+	public double getPrice() {
+		return price;
+	}
 
-  public String getTicker() {
-    return ticker;
-  }
+	public String getTicker() {
+		return ticker;
+	}
 
-  @Override
-  public String toString() {
-    return "Trade [qty=" + qty + ", side=" + side + ", price=" + price + ", ticker=" + ticker
-        + ", tradeDate=" + tradeDate + "]";
-  }
+	public int getId() {
+		return tradeId;
+	}
+
+	@Override
+	public String toString() {
+		return "Trade [tradeId=" + tradeId + ", side=" + side + ", qty=" + qty + ", ticker=" + ticker + ", price="
+				+ price + ", tradeDate=" + tradeDate + "]";
+	}
 }

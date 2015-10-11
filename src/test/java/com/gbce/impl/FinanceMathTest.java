@@ -1,6 +1,5 @@
 package com.gbce.impl;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -10,10 +9,9 @@ import org.testng.annotations.Test;
 
 import com.gbce.FinanceMath;
 import com.simplebank.supersimplestocks.TestGroup;
-import com.simplebank.supersimplestocks.fix.Side;
-import com.simplebank.supersimplestocks.fix.Trade;
 
 import static org.testng.Assert.assertEquals;
+import static com.simplebank.supersimplestocks.TestUtils.createListOfTrades;
 
 @Test(groups = TestGroup.UNIT)
 public class FinanceMathTest {
@@ -53,18 +51,5 @@ public class FinanceMathTest {
 	public void tickerPrice(List<Integer> qties, List<Double> prices, double expectedTickPrice) {
 		double tickerPrice = FinanceMath.tickerPrice(createListOfTrades(qties, prices));
 		assertEquals(tickerPrice, expectedTickPrice);
-	}
-
-	private List<Trade> createListOfTrades(List<Integer> qties, List<Double> prices) {
-		List<Trade> trades = new ArrayList<>();
-		if (qties.size() != prices.size()) {
-			throw new IllegalArgumentException("Number of qties doesn't match number of prices");
-		}
-
-		for (int i = 0; i < qties.size(); i++) {
-			trades.add(new Trade(Side.BUY, "FAK", qties.get(i), prices.get(i)));
-		}
-
-		return trades;
 	}
 }

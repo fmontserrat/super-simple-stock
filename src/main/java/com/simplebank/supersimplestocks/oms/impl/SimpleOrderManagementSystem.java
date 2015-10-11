@@ -13,6 +13,8 @@ import com.simplebank.supersimplestocks.sd.StaticDataService;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
+import java.text.NumberFormat;
+
 /**
  * Default first generation implementation of the OMS
  * 
@@ -21,86 +23,98 @@ import static com.google.common.base.Preconditions.checkArgument;
  */
 public class SimpleOrderManagementSystem implements OrderManagementSystem {
 
-  private final MarketDataService marketDataService;
+	private final MarketDataService marketDataService;
 
-  private final StaticDataService staticDataService;
+	private final StaticDataService staticDataService;
 
-  private final GbceConnectivity gbceConnectivity;
+	private final GbceConnectivity gbceConnectivity;
 
-  @Inject
-  public SimpleOrderManagementSystem(final MarketDataService marketDataService,
-      final StaticDataService staticDataService, final GbceConnectivity gbceConnectivity) {
-    this.marketDataService = marketDataService;
-    this.staticDataService = staticDataService;
-    this.gbceConnectivity = gbceConnectivity;
-  }
+	private static final double FF_TOLERANCE_LIMIT = 0.15;
 
-  @Override
-  public Order enterNewOrderSingle(Side side, String ticker, int qty, double price) {
-    checkArgument(ticker != null & ticker.length() == 3);
-    // lot size is always 1
-    checkArgument(qty > 0);
-    // let fat finger check catch invalid prices
-    checkArgument(price > 0);
+	@Inject
+	public SimpleOrderManagementSystem(final MarketDataService marketDataService,
+			final StaticDataService staticDataService, final GbceConnectivity gbceConnectivity) {
+		this.marketDataService = marketDataService;
+		this.staticDataService = staticDataService;
+		this.gbceConnectivity = gbceConnectivity;
+	}
 
-    fatFingerCheck(ticker, qty);
-    return new Order(side, ticker, qty, price);
-  }
+	@Override
+	public Order enterNewOrderSingle(Side side, String ticker, int qty, double price) {
+		checkArgument(ticker != null & ticker.length() == 3, "Ticker length is not 3");
+		// lot size is always 1
+		checkArgument(qty > 0, "Quantity has to be positive");
+		// let fat finger check catch invalid prices
+		checkArgument(price > 0, "Price has to be positive");
 
-  @Override
-  public Trade execute(Order order) {
+		fatFingerCheck(ticker, price);
+		return new Order(side, ticker, qty, price);
+	}
 
-    if (OrdStatus.FILLED.equals(order.getOrdStatus())) {
-      throw new UnsupportedOperationException("The order is already filled");
-    }
+	@Override
+	public Trade execute(Order order) {
 
-    Trade trade = gbceConnectivity.sendToMarket(order);
-    order.setOrdStatus(OrdStatus.FILLED);
-    return trade;
-  }
+		if (OrdStatus.FILLED.equals(order.getOrdStatus())) {
+			throw new UnsupportedOperationException("The order is already filled");
+		}
 
-  @Override
-  public double calculateDividendYield(String ticker) {
+		Trade trade = gbceConnectivity.sendToMarket(order);
+		order.setOrdStatus(OrdStatus.FILLED);
+		return trade;
+	}
 
-    String mic = primaryExchangeFor(ticker);
-    SecurityType securityType = staticDataService.securityType(ticker);
-    double dividendYield;
+	@Override
+	public double calculateDividendYield(String ticker) {
 
-    switch (securityType) {
-      case CS:
-        dividendYield = calculateDividendYieldCommonStock(ticker, mic);
-        break;
-      case PS:
-        dividendYield = calculateDividendYieldPreferredStock(ticker, mic);
-        break;
-      default:
-        throw new UnsupportedOperationException(String.format(
-            "The SecurityType %s is not supported.", securityType));
-    }
+		String mic = primaryExchangeFor(ticker);
+		SecurityType securityType = staticDataService.securityType(ticker);
+		double dividendYield;
 
-    return dividendYield;
-  }
+		switch (securityType) {
+		case CS:
+			dividendYield = calculateDividendYieldCommonStock(ticker, mic);
+			break;
+		case PS:
+			dividendYield = calculateDividendYieldPreferredStock(ticker, mic);
+			break;
+		default:
+			throw new UnsupportedOperationException(
+					String.format("The SecurityType %s is not supported.", securityType));
+		}
 
-  @Override
-  public double calculatePERatio(String ticker) {
-    String mic = primaryExchangeFor(ticker);
-    return marketDataService.tickerPrice(ticker, mic) / marketDataService.lastDividend(ticker, mic);
-  }
+		return dividendYield;
+	}
 
-  private double calculateDividendYieldCommonStock(String ticker, String mic) {
-    return marketDataService.lastDividend(ticker, mic) / marketDataService.tickerPrice(ticker, mic);
-  }
+	@Override
+	public double calculatePERatio(String ticker) {
+		String mic = primaryExchangeFor(ticker);
+		return marketDataService.tickerPrice(ticker, mic) / marketDataService.lastDividend(ticker, mic);
+	}
 
-  private double calculateDividendYieldPreferredStock(String ticker, String mic) {
-    return marketDataService.fixedDividend(ticker, mic) * marketDataService.parValue(ticker, mic)
-        / marketDataService.tickerPrice(ticker, mic);
-  }
+	private double calculateDividendYieldCommonStock(String ticker, String mic) {
+		return marketDataService.lastDividend(ticker, mic) / marketDataService.tickerPrice(ticker, mic);
+	}
 
-  private void fatFingerCheck(String ticker, int qty) {
-    // TODO implement. FF not yet there.
-  }
+	private double calculateDividendYieldPreferredStock(String ticker, String mic) {
+		return marketDataService.fixedDividend(ticker, mic) * marketDataService.parValue(ticker, mic)
+				/ marketDataService.tickerPrice(ticker, mic);
+	}
 
-  private String primaryExchangeFor(String ticker) {
-    return marketDataService.primaryExchangeOf(ticker);
-  }
+	private void fatFingerCheck(final String ticker, final double price) {
+
+		double lastPrice = marketDataService.lastPrice(ticker, primaryExchangeFor(ticker));
+
+		// 0 means no market data (there's no opening price so first trade sets
+		// the price)
+		if (lastPrice != 0) {
+			if (Math.abs(lastPrice - price) > lastPrice * FF_TOLERANCE_LIMIT) {
+				throw new IllegalArgumentException("FatFinger check: price exceeds tolerance of "
+						+ NumberFormat.getPercentInstance().format(FF_TOLERANCE_LIMIT) + " for " + lastPrice);
+			}
+		}
+	}
+
+	private String primaryExchangeFor(String ticker) {
+		return marketDataService.primaryExchangeOf(ticker);
+	}
 }

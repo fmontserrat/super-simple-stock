@@ -2,6 +2,7 @@ package com.gbce;
 
 import com.simplebank.supersimplestocks.fix.SecurityType;
 import com.simplebank.supersimplestocks.fix.Trade;
+import com.gbce.impl.DividendData;
 import com.simplebank.supersimplestocks.fix.Order;
 import java.util.List;
 
@@ -83,6 +84,13 @@ public interface GbceConnectivity {
    * @return The calculated ticker price
    */
   public double tickerPrice(String ticker);
+  
+  /**
+   * Stock will be added to the market and can be traded from now on
+   * 
+   * dividendData The static dividend data for the stock
+   */
+  public void addTickerToMarket(DividendData dividendData);
   
   /**
    *  Calculate the GBCE All Share Index

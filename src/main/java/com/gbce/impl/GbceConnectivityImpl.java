@@ -1,52 +1,45 @@
 package com.gbce.impl;
 
-import java.util.Arrays;
-import java.util.Deque;
 import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import com.gbce.FinanceMath;
 import com.gbce.GbceConnectivity;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.collect.ImmutableList;
 import com.simplebank.supersimplestocks.fix.Order;
 import com.simplebank.supersimplestocks.fix.SecurityType;
 import com.simplebank.supersimplestocks.fix.Trade;
 
-import static com.simplebank.supersimplestocks.fix.SecurityType.CS;
-import static com.simplebank.supersimplestocks.fix.SecurityType.PS;
-
 public class GbceConnectivityImpl implements GbceConnectivity {
 
-	private final Map<String, Deque<Trade>> tradeHistory = new HashMap<>();
-	private final Map<String, Double> tickerPrices = new HashMap<>();
+	private static final int EXPIRATION_TIME_IN_MINUTES = 15;
 
-	private Map<String, TradeHistoricalData> marketHistoricalData;
+	private int exchangeTradeId = 0;
+	private Set<String> tradedStocks = new HashSet<String>();
+	private final Map<String, Cache<Integer, Trade>> tradeHistory = new HashMap<>();
+	private final Map<String, Double> tickerPrices = new HashMap<>();
+	private final Map<String, Double> lastPrices = new HashMap<>();
+
+	private Map<String, DividendData> marketHistoricalData = new HashMap<>();
 
 	@Override
 	public Trade sendToMarket(Order order) {
-		Trade trade = new Trade(order.getSide(), order.getTicker(), order.getQty(), order.getPrice());
+		Trade trade = new Trade(++exchangeTradeId, order.getSide(), order.getTicker(), order.getQty(),
+				order.getPrice());
 		recordTrade(trade);
 		return trade;
-	}
-
-	public void init() {
-		for (String ticker : getTradedStocks()) {
-			tradeHistory.put(ticker, new LinkedList<Trade>());
-		}
-		loadDefaultHistoricalData();
-	}
-
-	@Override
-	public List<String> getTradedStocks() {
-		// TODO defaults somewhere
-		return Arrays.asList(new String[] { "TEA", "POP", "ALE", "GIN", "JOE" });
 	}
 
 	@Override
 	public double lastPrice(String ticker) {
 		verifyIfTraded(ticker);
-		return tradeHistory.get(ticker).getLast().getPrice();
+		return lastPrices.get(ticker);
 	}
 
 	@Override
@@ -75,18 +68,38 @@ public class GbceConnectivityImpl implements GbceConnectivity {
 
 	@Override
 	public double GbceIndex() {
+
+		for (String ticker : getTradedStocks()) {
+			tickerPrice(ticker);
+		}
+
 		return FinanceMath.geometricMean(tickerPrices.values());
 	}
 
 	@Override
 	public double tickerPrice(String ticker) {
 		verifyIfTraded(ticker);
-		return FinanceMath.tickerPrice(last15minOf(this.tradeHistory.get(ticker)));
+		Map<Integer, Trade> tradeCache = this.tradeHistory.get(ticker).asMap();
+
+		// NOTE: Using a view for performance reasons instead of copying
+		// the map (receiver must guarantee not modifying the data)
+		double tickerPrice = tradeCache.size() == 0 ? 0 : FinanceMath.tickerPrice(tradeCache.values());
+		tickerPrices.put(ticker, tickerPrice);
+		return tickerPrice;
 	}
 
-	private Deque<Trade> last15minOf(Deque<Trade> trades) {
-		//TODO filter
-		return trades;
+	@Override
+	public List<String> getTradedStocks() {
+		return ImmutableList.copyOf(tradedStocks);
+	}
+
+	private void recordTrade(Trade trade) {
+		lastPrices.put(trade.getTicker(), trade.getPrice());
+		tradeHistory.get(trade.getTicker()).put(trade.getId(), trade);
+	}
+
+	private Cache<Integer, Trade> buildTradeCache() {
+		return CacheBuilder.newBuilder().expireAfterWrite(EXPIRATION_TIME_IN_MINUTES, TimeUnit.MINUTES).build();
 	}
 
 	private void verifyIfTraded(String ticker) {
@@ -95,51 +108,13 @@ public class GbceConnectivityImpl implements GbceConnectivity {
 		}
 	}
 
-	private void recordTrade(Trade trade) {
-		tradeHistory.get(trade.getTicker()).add(trade);
-	}
-
-	void enterDividendStaticData(String ticker, TradeHistoricalData tradeHistoricalData) {
-		marketHistoricalData.put(ticker, tradeHistoricalData);
-	}
-
-	void loadDefaultHistoricalData() {
-		// TODO load from somewhere else and make factory
-		marketHistoricalData.put("TEA", new TradeHistoricalData(CS, 0, 0, 100));
-		marketHistoricalData.put("POP", new TradeHistoricalData(CS, 8, 0, 100));
-		marketHistoricalData.put("ALE", new TradeHistoricalData(CS, 23, 0, 60));
-		marketHistoricalData.put("GIN", new TradeHistoricalData(PS, 8, 0.02, 100));
-		marketHistoricalData.put("JOE", new TradeHistoricalData(CS, 13, 0, 250));
-	}
-
-	private class TradeHistoricalData {
-
-		private final int parValue;
-		private final double fixedDividend, lastDividend;
-		private final SecurityType securityType;
-
-		public TradeHistoricalData(SecurityType securityType, double lastDividend, double fixedDividend, int parValue) {
-			this.parValue = parValue;
-			this.fixedDividend = fixedDividend;
-			this.lastDividend = lastDividend;
-			this.securityType = securityType;
-		}
-
-		public int getParValue() {
-			return parValue;
-		}
-
-		public double getFixedDividend() {
-			return fixedDividend;
-		}
-
-		public double getLastDividend() {
-			return lastDividend;
-		}
-
-		public SecurityType getSecurityType() {
-			return securityType;
-		}
-
+	@Override
+	public void addTickerToMarket(DividendData dividendData) {
+		String ticker = dividendData.getTicker();
+		marketHistoricalData.put(ticker, dividendData);
+		tradedStocks.add(ticker);
+		tradeHistory.put(ticker, buildTradeCache());
+		tickerPrices.put(ticker, 0.0);
+		lastPrices.put(ticker, 0.0);
 	}
 }
