@@ -37,4 +37,20 @@ public interface OrderManagementSystem {
    * @return The executed trade
    */
   public Trade execute(Order order);
+  
+  /**
+   * http://www.investopedia.com/terms/d/dividendyield.asp
+   * 
+   * @param ticker The stock which dividend yield is requested
+   * @return Dividend yield
+   */
+  public double calculateDividendYield(String ticker);
+  
+  /**
+   * http://www.investopedia.com/terms/p/price-earningsratio.asp
+   * 
+   * @param ticker The stock which P/E ratio is requested
+   * @return P/E Ratio
+   */
+  public double calculatePERatio(String ticker);
 }

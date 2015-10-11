@@ -6,6 +6,8 @@ import java.util.Date;
  * Super simple fix-based trade (no FIX library used for simplicity and to keep the project
  * lightweight)
  * 
+ * Trade is immutable
+ * 
  * @author Francesc Montserrat
  * 
  */
@@ -44,5 +46,11 @@ public class Trade {
 
   public String getTicker() {
     return ticker;
+  }
+
+  @Override
+  public String toString() {
+    return "Trade [qty=" + qty + ", side=" + side + ", price=" + price + ", ticker=" + ticker
+        + ", tradeDate=" + tradeDate + "]";
   }
 }
