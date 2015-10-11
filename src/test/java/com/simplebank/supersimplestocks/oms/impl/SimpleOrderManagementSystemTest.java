@@ -7,6 +7,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.gbce.GbceConnectivity;
+import com.simplebank.supersimplestocks.TestGroup;
 import com.simplebank.supersimplestocks.TickDataProviders;
 import com.simplebank.supersimplestocks.fix.OrdStatus;
 import com.simplebank.supersimplestocks.fix.Order;
@@ -24,6 +25,7 @@ import static org.mockito.Mockito.anyString;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
+@Test(groups = TestGroup.UNIT)
 public class SimpleOrderManagementSystemTest {
 
   @Mock

@@ -66,7 +66,7 @@ public interface GbceConnectivity {
    * @param ticker The identifier of the stock
    * @return The par value for a give stock
    */
-  public double parValue(String ticker);
+  public int parValue(String ticker);
 
   /**
    * http://www.investopedia.com/exam-guide/series-7/equities/types-stock.asp
@@ -83,4 +83,11 @@ public interface GbceConnectivity {
    * @return The calculated ticker price
    */
   public double tickerPrice(String ticker);
+  
+  /**
+   *  Calculate the GBCE All Share Index
+   *  
+   * @return The index price for GBCE
+   */
+  public double GbceIndex();
 }

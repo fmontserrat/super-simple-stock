@@ -7,10 +7,13 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.gbce.GbceConnectivity;
+import com.simplebank.supersimplestocks.TestGroup;
+
 import static org.mockito.MockitoAnnotations.initMocks;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertEquals;
 
+@Test(groups = TestGroup.UNIT)
 public class MarketDataServiceImplTest {
 
   @Mock
