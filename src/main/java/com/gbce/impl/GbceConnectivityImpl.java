@@ -8,7 +8,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import com.gbce.FinanceMath;
-import com.gbce.GbceConnectivity;
+import com.gbce.GbceAdmin;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ImmutableList;
@@ -16,7 +16,7 @@ import com.simplebank.supersimplestocks.fix.Order;
 import com.simplebank.supersimplestocks.fix.SecurityType;
 import com.simplebank.supersimplestocks.fix.Trade;
 
-public class GbceConnectivityImpl implements GbceConnectivity {
+public class GbceConnectivityImpl implements GbceAdmin {
 
 	private static final int EXPIRATION_TIME_IN_MINUTES = 15;
 
