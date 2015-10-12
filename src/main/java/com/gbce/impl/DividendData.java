@@ -2,6 +2,12 @@ package com.gbce.impl;
 
 import com.simplebank.supersimplestocks.fix.SecurityType;
 
+/**
+ * Representation of static data of a stock
+ * 
+ * @author Francesc Montserrat
+ *
+ */
 public class DividendData {
 
 	private final String ticker;

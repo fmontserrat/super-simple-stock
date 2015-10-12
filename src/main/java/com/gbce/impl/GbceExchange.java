@@ -20,6 +20,12 @@ import com.simplebank.supersimplestocks.fix.Order;
 import com.simplebank.supersimplestocks.fix.SecurityType;
 import com.simplebank.supersimplestocks.fix.Trade;
 
+/**
+ * Global Beverage Corporation Exchange
+ * 
+ * @author Francesc Montserrat
+ *
+ */
 public class GbceExchange implements GbceAdmin {
 
 	public static final String TRADE_EXPIRATION_TIME_IN_SECONDS = "tradeExpirationTimeInSeconds";
@@ -48,7 +54,6 @@ public class GbceExchange implements GbceAdmin {
 	public void init() {
 		scheduler = Executors.newScheduledThreadPool(1);
 
-		// Schedule regular cache cleanup
 		scheduler.scheduleWithFixedDelay(new Runnable() {
 			@Override
 			public void run() {
@@ -117,10 +122,14 @@ public class GbceExchange implements GbceAdmin {
 		// was auto cleaned in insertions (if there's liquidity)
 		// in any case, this is a delta cleanup
 		cache.cleanUp();
-		Map<Integer, Trade> tradeCache = cache.asMap();
 
 		// Using a view for performance reasons instead of copying
 		// the map (receiver must guarantee not modifying the data)
+		Map<Integer, Trade> tradeCache = cache.asMap();
+
+		// Calculation of both tickerPrice and index could also be scheduled to happen on every insertion
+		// or expiration of trades. To be considered if market data is published to the clients
+		// (keeping it synchronous for the first version)
 		double tickerPrice = tradeCache.size() == 0 ? 0 : FinanceMath.tickerPrice(tradeCache.values());
 		tickerPrices.put(ticker, tickerPrice);
 		return tickerPrice;

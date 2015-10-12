@@ -9,7 +9,7 @@ import java.util.List;
  * Connectivity with the Global Beverage Corporation Exchange
  * 
  * For simplicity this is contained in the same module but in a bigger project would be an external
- * library offered by the client or most realistically an agreed FIX/custom going over TCP
+ * library offered by the client or most realistically an agreed FIX/custom message going over TCP
  * 
  * Also in a more realistic scenario MD would be consumed in an aggregated manner from an MD
  * provider and not directly from each exchange.
