@@ -86,6 +86,16 @@ public class SimpleOrderManagementSystem implements OrderManagementSystem {
 	}
 
 	@Override
+	public double tickerPrice(String ticker) {
+		return gbceConnectivity.tickerPrice(ticker);
+	}
+
+	@Override
+	public double gbceIndex() {
+		return gbceConnectivity.gbceIndex();
+	}
+	
+	@Override
 	public double calculatePERatio(String ticker) {
 		String mic = primaryExchangeFor(ticker);
 		return marketDataService.tickerPrice(ticker, mic) / marketDataService.lastDividend(ticker, mic);
@@ -113,7 +123,7 @@ public class SimpleOrderManagementSystem implements OrderManagementSystem {
 			}
 		}
 	}
-
+	
 	private String primaryExchangeFor(String ticker) {
 		return marketDataService.primaryExchangeOf(ticker);
 	}

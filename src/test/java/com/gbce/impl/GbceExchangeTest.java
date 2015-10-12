@@ -21,15 +21,15 @@ import java.util.Arrays;
 import java.util.List;
 
 @Test(groups = TestGroup.UNIT)
-public class GbceConnectivityImplTest {
+public class GbceExchangeTest {
 
-	GbceConnectivity gbceConnectivity;
+	private GbceConnectivity gbceConnectivity;
 
-	GbceAdmin gbceAdmin;
+	private GbceAdmin gbceAdmin;
 
 	@BeforeMethod
 	public void reset() {
-		gbceAdmin = new GbceConnectivityImpl();
+		gbceAdmin = new GbceExchange();
 		gbceConnectivity = gbceAdmin;
 		gbceAdmin.addTickerToMarket(createsNewCommonStock("TEA", 0.0, 100));
 		gbceAdmin.addTickerToMarket(createsNewCommonStock("POP", 8.0, 100));
@@ -81,7 +81,7 @@ public class GbceConnectivityImplTest {
 
 		assertEquals(gbceConnectivity.tickerPrice(ticker1), 20.653846153846153);
 		assertEquals(gbceConnectivity.tickerPrice(ticker2), 36.042268041237115);
-		assertEquals(gbceConnectivity.GbceIndex(), 0.0);
+		assertEquals(gbceConnectivity.gbceIndex(), 0.0);
 	}
 
 	@Test
@@ -96,6 +96,6 @@ public class GbceConnectivityImplTest {
 			gbceConnectivity.sendToMarket(order);
 		}
 
-		assertEquals(gbceConnectivity.GbceIndex(), FinanceMath.geometricMean(Arrays.asList(prices)), 0.000000001);
+		assertEquals(gbceConnectivity.gbceIndex(), FinanceMath.geometricMean(Arrays.asList(prices)), 0.000000001);
 	}
 }

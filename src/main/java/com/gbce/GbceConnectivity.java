@@ -89,5 +89,5 @@ public interface GbceConnectivity {
    *  
    * @return The index price for GBCE
    */
-  public double GbceIndex();
+  public double gbceIndex();
 }

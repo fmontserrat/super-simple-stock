@@ -27,7 +27,6 @@ public class MarketDataServiceImplTest {
     when(gcConnectivity.getTradedStocks()).thenReturn(
         Arrays.asList(new String[] {"TEA", "POP", "ALE", "GIN", "JOE"}));
     marketDataService = new MarketDataServiceImpl(gcConnectivity);
-    marketDataService.init();
   }
 
   @Test

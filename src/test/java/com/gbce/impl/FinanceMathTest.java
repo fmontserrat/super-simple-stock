@@ -21,7 +21,7 @@ public class FinanceMathTest {
 	public static final String QTY_AND_PRICES_DATA_PROVIDER = "QtyAndPricesDataProvider";
 
 	@DataProvider(name = GEOMETRIC_MEAN_DATA_PROVIDER)
-	public static Object[][] geometriMeanDataProider() {
+	public static Object[][] geometricMeanDataProvider() {
 		return new Object[][] { { Arrays.asList(new Double[] { 1.0, 2.0, 3.0 }), 1.8171205928321397 },
 				{ Arrays.asList(new Double[] { 5.0, 20.0, 40.0, 80.0, 100.0 }), 31.697863849222276 },
 				{ Arrays.asList(new Double[] { 1.3, 5.6, 90.8, 328.3, 2.0 }), 13.41231118846773 },

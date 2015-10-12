@@ -53,4 +53,19 @@ public interface OrderManagementSystem {
    * @return P/E Ratio
    */
   public double calculatePERatio(String ticker);
+  
+  /**
+   * Obtain ticker price for a given stock
+   * 
+   * @param ticker id
+   * @return ticker price
+   */
+  public double tickerPrice(String ticker);
+  
+  /**
+   * Obtain GBCE index
+   * 
+   * @return index value at the give instant
+   */
+  public double gbceIndex();
 }
