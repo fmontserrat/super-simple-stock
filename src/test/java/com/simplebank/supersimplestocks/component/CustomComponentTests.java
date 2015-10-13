@@ -10,6 +10,17 @@ public class CustomComponentTests extends ComponentTestBase {
 
 	@Test
 	public void customTest(){
+		
 		// TODO new tests here
+		
+		//New oreder
+		//Order order = orderManagementSystem.enterNewOrderSingle(...)
+		
+		// Execute
+		//orderManagementSystem.execute(order)
+		
+		// Default tickers are already on the market (see parent class)
+		// to add new ones
+		//gbceAdmin.addTickerToMarket(...);
 	}
 }
