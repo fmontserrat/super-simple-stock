@@ -164,4 +164,14 @@ public class GbceExchange implements GbceAdmin {
 			throw new IllegalArgumentException(String.format("The stock %s is not traded in %s", ticker, GBCE));
 		}
 	}
+
+	void setTradeExpirationTime(int tradeExpirationTime) {
+		this.tradeExpirationTime = tradeExpirationTime;
+	}
+
+	void setTradeCacheCleanupFrequencyInMs(int tradeCacheCleanupFrequencyInMs) {
+		this.tradeCacheCleanupFrequencyInMs = tradeCacheCleanupFrequencyInMs;
+	}
+	
+	
 }

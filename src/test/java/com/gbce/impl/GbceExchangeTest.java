@@ -29,8 +29,11 @@ public class GbceExchangeTest {
 
 	@BeforeMethod
 	public void reset() {
-		gbceAdmin = new GbceExchange();
-		gbceConnectivity = gbceAdmin;
+		GbceExchange gbceExchange = new GbceExchange();
+		gbceExchange.setTradeExpirationTime(1);
+		gbceExchange.setTradeCacheCleanupFrequencyInMs(1000);
+		gbceConnectivity = gbceExchange;
+		gbceAdmin = gbceExchange;
 		gbceAdmin.addTickerToMarket(createsNewCommonStock("TEA", 0.0, 100));
 		gbceAdmin.addTickerToMarket(createsNewCommonStock("POP", 8.0, 100));
 		gbceAdmin.addTickerToMarket(createsNewCommonStock("ALE", 23.0, 60));
