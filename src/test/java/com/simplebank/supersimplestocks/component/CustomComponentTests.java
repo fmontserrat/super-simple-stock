@@ -13,7 +13,7 @@ public class CustomComponentTests extends ComponentTestBase {
 		
 		// TODO new tests here
 		
-		//New oreder
+		//New order
 		//Order order = orderManagementSystem.enterNewOrderSingle(...)
 		
 		// Execute
